@@ -2,12 +2,22 @@ PrayerTimes
 ===========
 
 .. image:: https://travis-ci.org/QuantumPrayerTimes/prayertimes.svg?branch=master
-   :alt: Build
-   
-.. image:: https://www.quantifiedcode.com/api/v1/project/f73051bca854427c8405d28eabe6424c/badge.svg
-   :target: https://www.quantifiedcode.com/app/project/f73051bca854427c8405d28eabe6424c
-   :alt: Code issues
-   
+    :alt: Build
+    
+.. image:: https://coveralls.io/repos/github/QuantumPrayerTimes/prayertimes/badge.svg?branch=master
+    :target: https://coveralls.io/github/QuantumPrayerTimes/prayertimes?branch=master
+
+.. image:: https://landscape.io/github/QuantumPrayerTimes/prayertimes/master/landscape.svg?style=flat
+    :target: https://landscape.io/github/QuantumPrayerTimes/prayertimes/master
+    :alt: Code Health
+    
+.. image:: https://codecov.io/gh/QuantumPrayerTimes/prayertimes/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/QuantumPrayerTimes/prayertimes
+
+.. image:: https://codeclimate.com/github/QuantumPrayerTimes/prayertimes/badges/coverage.svg
+   :target: https://codeclimate.com/github/QuantumPrayerTimes/prayertimes/coverage
+   :alt: Test Coverage
+
 Pray Times, an Islamic project aimed at providing an open-source library for calculating Muslim prayers times.
 The first version of Pray Times was released in early 2007. The code is currently used in a wide range of Islamic websites and applications. (http://praytimes.org/)
   
@@ -41,6 +51,14 @@ You will need the following software properly installed on your computer.
 
 Installation
 ============
+
+Clone the repo and run :
+
+.. code:: python
+
+    git clone https://github.com/QuantumPrayerTimes/prayertimes.git
+    cd prayertimes
+    python setup.py install
 
 Usage
 =====
@@ -123,13 +141,76 @@ Modify time format :
     # Using ISNA calculation method
     PT = PrayTimes('ISNA')
     
-    # Date 02/25/2011
-    # City Lat and Long : 43, -80
-    # City UTC offset : -5 (you have to take into account DST)
+    # Change time format
+    PT.time_format = '12h'
+    
     times = PT.get_times((2011, 2, 25), (43, -80), -5)
 
-Configurations
-==============
+Available settings :
+
+::
+
+    Asr methods
+    +==========+========================================================+
+    | Method   | Description (More Info)                                |
+    +==========+========================================================+
+    | Standard | Shafii, Maliki, Jafari and Hanbali (shadow factor = 1) |
+    +----------+--------------------------------------------------------+
+    | Hanafi   | Hanafi school of tought (shadow factor = 2)            |
+    +----------+--------------------------------------------------------+
+    
+    Midnight methods
+    +==========+======================================+
+    | Method   | Description                          |
+    +==========+======================================+
+    | Standard | The mean time from Sunset to Sunrise |
+    +----------+--------------------------------------+
+    | Hanafi   | The mean time from Maghrib to Fajr   |
+    +----------+--------------------------------------+
+    
+    Higher latitudes methods
+    +=============+======================================+
+    | Method      | Description (More Info)              |
+    +=============+======================================+
+    | None        | No adjustments                       |
+    +-------------+--------------------------------------+
+    | NightMiddle | The middle of the night method       |
+    +-------------+--------------------------------------+
+    | OneSeventh  | The 1/7th of the night method        |
+    +-------------+--------------------------------------+
+    | AngleBased  | The angle-based method (recommended) |
+    +-------------+--------------------------------------+
+
+
+Modify settings :
+
+.. code:: python
+
+    from prayertimes import PrayTimes
+    
+    # Using ISNA calculation method
+    PT = PrayTimes('ISNA')
+    
+    # Change asr settings
+    PT.adjust({'asr': 'Hanafi'})
+    
+    times = PT.get_times((2011, 2, 25), (43, -80), -5)
+
+Tune prayer times :
+
+.. code:: python
+
+    from prayertimes import PrayTimes
+    
+    # Using ISNA calculation method
+    PT = PrayTimes('ISNA')
+    
+    # Tune the times
+    PT.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10, 
+             'isha': +10, 'midnight': 5, 'sunrise': -2, 'sunset': +9, 
+             'imsak': +15})
+    
+    times = PT.get_times((2011, 2, 25), (43, -80), -5)
 
 Resources
 =========
@@ -138,5 +219,9 @@ Resources
 
     - Browse at https://github.com/QuantumPrayerTimes/prayertimes
 
-Please let me know if you like or use this module - it would make
-my day!
+
+Issues
+======
+
+If you have any issues or improvements, do not hesitate to create an
+issue or submit a pull request.

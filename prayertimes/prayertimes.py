@@ -129,6 +129,13 @@ import datetime
 
 
 class PrayTimes(object):
+    """
+    PrayTimes class
+
+    Pray Times, an Islamic project aimed at providing an open-source library for calculating Muslim prayers times.
+    This is an improved version PEP8 compliant.
+
+    """
 
     # Time Names
     time_names = ['imsak', 'fajr', 'sunrise', 'dhuhr', 'asr', 'sunset', 'maghrib', 'isha', 'midnight']
@@ -196,7 +203,7 @@ class PrayTimes(object):
         self.julian_date = self.julian(date.year, date.month, date.day) - self.lng / (15 * 24.0)
 
         # Add default parameters (maghrib and midnight) to methods if not defined.
-        for method_, config_ in self.methods.items():
+        for _, config_ in self.methods.items():
             for name_, value_ in self.method_defaults.items():
                 if name_ not in config_['params'] or config_['params'][name_] is None:
                     config_['params'][name_] = value_
@@ -421,7 +428,7 @@ class PrayTimes(object):
         params = self.settings
         tz_adjust = self.timezone - self.lng / 15.0
 
-        for t, v in times.items():
+        for t in times.keys():
             times[t] += tz_adjust
 
         if params['highLats'] != 'None':
@@ -465,7 +472,7 @@ class PrayTimes(object):
         :param times:
         :return:
         """
-        for name, value in times.items():
+        for name in times.keys():
             times[name] += self.offset[name] / 60.0
         return times
 
@@ -475,7 +482,7 @@ class PrayTimes(object):
         :param times:
         :return:
         """
-        for name, value in times.items():
+        for name in times.keys():
             times[name] = self.get_formatted_time(times[name], self.time_format)
         return times
 
@@ -613,7 +620,10 @@ class PrayTimes(object):
 
 
 def print_begin(calc_method):
-    intro = 'Prayer Times for today using {} method'.format(calc_method)
+    """
+    Print function. Improve readability.
+    """
+    intro = 'Prayer Times for today using {meth} method'.format(meth=calc_method)
 
     print('')
     print('=' * len(intro))
@@ -622,6 +632,9 @@ def print_begin(calc_method):
 
 
 def main():
+    """
+    Main function - Execute a test code.
+    """
 
     # Some bugs on some calculation method like "Makkah" ...
     praytimes = PrayTimes('Makkah', format_time="24h")
@@ -639,6 +652,7 @@ def main():
         print("{0:<10} | {1:^12}".format(i, times[i.lower()]))
 
     praytimes.adjust({"asr": "Hanafi"})
+    praytimes.set_method("ISNA")
 
     print_begin(praytimes.calc_method)
 

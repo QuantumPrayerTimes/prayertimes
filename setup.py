@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from distutils.core import setup
+import os
 
-README = open('README.rst').read().strip()
-VERSION = "1.0"
+from setuptools import setup
+
+README = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read().strip()
+VERSION = "0.1"
 
 setup(
     name='prayertimes',
@@ -16,7 +18,6 @@ setup(
     maintainer='Sid-Ali TEIR',
     maintainer_email='git.syedelec@gmail.com',
     url='https://github.com/QuantumPrayerTimes/prayertimes',
-    download_url='https://github.com/QuantumPrayerTimes/prayertimes/releases/tag/1.0',
     license='LGPL v3.0',
     package_data={
         '': ['README.rst'],
@@ -26,10 +27,13 @@ setup(
         'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
         'Natural Language :: English',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
+    test_suite='tests',
+    tests_require=['nose'],
 )
