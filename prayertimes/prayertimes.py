@@ -586,7 +586,7 @@ class PrayTimes(object):
         :param st:
         :return:
         """
-        val = re.split('[^0-9.+-]', str(st), 1)[0]
+        val = re.split(r'[^0-9.+-]', str(st), maxsplit=1)[0]
         return float(val) if val else 0
 
     @staticmethod
