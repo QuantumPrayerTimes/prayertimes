@@ -52,15 +52,18 @@ Compatible with Python 2.x and 3.x
 | 12hNS  | 12-hour format with no suffix | 4:45    |
 | Float  | Floating point number         | 16.75   |
 
-| Method  | Description                                   |
-|---------|-----------------------------------------------|
-| MWL     | Muslim World League                           |
-| ISNA    | Islamic Society of North America              |
-| Egypt   | Egyptian General Authority of Survey          |
-| Makkah  | Umm al-Qura University                        |
-| Karachi | University of Islamic Sciences, Karachi       |
-| Tehran  | Institute of Geophysics, University of Tehran |
-| Jafari  | Shia Ithna Ashari (Ja`fari)                   |
+| Method    | Description                                   |
+|-----------|-----------------------------------------------|
+| MWL       | Muslim World League                           |
+| ISNA      | Islamic Society of North America              |
+| Egypt     | Egyptian General Authority of Survey          |
+| Makkah    | Umm al-Qura University                        |
+| Karachi   | University of Islamic Sciences, Karachi       |
+| Tehran    | Institute of Geophysics, University of Tehran |
+| Jafari    | Shia Ithna Ashari (Ja`fari)                   |
+| UOIF      | Union of Islamic Organizations of France      |
+| Singapore | Majlis Ugama Islam Singapura                  |
+| Turkey    | Diyanet İşleri Başkanlığı, Turkey             |
 
 | Parameter | Values        | Description                   | Sample Value |
 |-----------|---------------|-------------------------------|--------------|
@@ -77,7 +80,7 @@ Compatible with Python 2.x and 3.x
 | midnight  | method        | midnight method *             | Standard     |
 | highLats  | method        | higher latitudes adjustment * | None         |
 
-\* means see the following tables.
+* means see the following tables.
 
 ###asr methods
 | Method   | Description (More Info)                                |
@@ -144,29 +147,44 @@ class PrayTimes(object):
     methods = {
         'MWL': {
             'name': 'Muslim World League',
-            'params': {'fajr': 18, 'isha': 17}},
+            'params': {'fajr': 18, 'isha': 17}
+        },
         'ISNA': {
-            'name': 'Islamic Society of North America (ISNA)',
-            'params': {'fajr': 15, 'isha': 15}},
+            'name': 'Islamic Society of North America',
+            'params': {'fajr': 15, 'isha': 15}
+        },
         'Egypt': {
             'name': 'Egyptian General Authority of Survey',
-            'params': {'fajr': 19.5, 'isha': 17.5}},
+            'params': {'fajr': 19.5, 'isha': 17.5}
+        },
         'Makkah': {
             'name': 'Umm Al-Qura University, Makkah',
-            'params': {'fajr': 18.5, 'isha': '90 min'}},  # Fajr was 19 degrees before 1430 hijri
+            'params': {'fajr': 18.5, 'isha': '90 min'}
+        },
         'Karachi': {
             'name': 'University of Islamic Sciences, Karachi',
-            'params': {'fajr': 18, 'isha': 18}},
+            'params': {'fajr': 18, 'isha': 18}
+        },
         'Tehran': {
             'name': 'Institute of Geophysics, University of Tehran',
-            'params': {'fajr': 17.7, 'isha': 14, 'maghrib': 4.5, 'midnight': 'Jafari'}},
-        # Isha is not explicitly specified in this method
+            'params': {'fajr': 17.7, 'maghrib': 4.5, 'isha': 14, 'midnight': 'Jafari'}
+        },
         'Jafari': {
             'name': 'Shia Ithna-Ashari, Leva Institute, Qum',
-            'params': {'fajr': 16, 'isha': 14, 'maghrib': 4, 'midnight': 'Jafari'}},
+            'params': {'fajr': 16, 'maghrib': 4, 'isha': 14, 'midnight': 'Jafari'}
+        },
         'UOIF': {
             'name': 'Union des Organisations Islamiques de France',
-            'params': {'fajr': 12, 'isha': 12}}
+            'params': {'fajr': 12, 'isha': 12}
+        },
+        'Singapore': {
+            'name': 'Majlis Ugama Islam Singapura',
+            'params': {'fajr': 20, 'isha': 18}
+        },
+        'Turkey': {
+            'name': 'Diyanet İşleri Başkanlığı, Turkey',
+            'params': {'fajr': 18, 'isha': 17}
+        }
     }
 
     # Default Parameters added in Calculation Methods <METHODS> if not already there
