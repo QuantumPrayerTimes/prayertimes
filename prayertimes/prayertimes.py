@@ -242,6 +242,9 @@ class PrayTimes(object):
         if format_time is not None:
             self.time_format = format_time
 
+        # Initialize last calculated times storage
+        self._last_calculated_times = None
+
     def set_method(self, method):
         """
         Set the calculation method.
@@ -291,7 +294,11 @@ class PrayTimes(object):
         # self.timezone = timezone + (1 if dst else 0)
         self.timezone = utc_offset
         self.julian_date = self.julian(date.year, date.month, date.day) - self.lng / (15 * 24.0)
-        return self.compute_times()
+
+        # Calculate and store times
+        self._last_calculated_times = self.compute_times()
+
+        return self._last_calculated_times
 
     def get_formatted_time(self, time_, format_, suffixes=None):
         """
@@ -636,17 +643,47 @@ class PrayTimes(object):
         a -= mode * (math.floor(a / mode))
         return a + mode if a < 0 else a
 
+    def __str__(self) -> str:
+        """
+        Return formatted string representation of the last calculated prayer times.
 
-def print_begin(calc_method):
-    """
-    Print function. Improve readability.
-    """
-    intro = 'Prayer Times for today using {meth} method'.format(meth=calc_method)
+        Returns:
+            str: Formatted prayer times table or message if not calculated yet
+        """
+        if self._last_calculated_times is None:
+            return "Prayer times have not been calculated yet. Call get_times() first."
 
-    print('')
-    print('=' * len(intro))
-    print(intro)
-    print('=' * len(intro))
+        method_name = self.methods[self.calc_method]['name']
+        location = f"Lat: {self.lat:.4f}, Long: {self.lng:.4f}"
+
+        # Build the output string
+        lines = []
+        title = f"Prayer Times ({method_name}) - {location}"
+        lines.append('=' * len(title))
+        lines.append(title)
+        lines.append('=' * len(title))
+
+        # Table headers
+        headers = ['Prayer', 'Time']
+        lines.append(f"{headers[0]:<10} | {headers[1]:^8}")
+        lines.append('-' * 20)
+
+        # Prayer names mapping
+        prayer_names = {
+            'fajr': 'Fajr',
+            'sunrise': 'Sunrise',
+            'dhuhr': 'Dhuhr',
+            'asr': 'Asr',
+            'maghrib': 'Maghrib',
+            'isha': 'Isha',
+        }
+
+        # Add each prayer time
+        for key, display_name in prayer_names.items():
+            if key in self._last_calculated_times:
+                lines.append(f"{display_name:<10} | {self._last_calculated_times[key]:^8}")
+
+        return '\n'.join(lines)
 
 
 def main():
@@ -654,38 +691,29 @@ def main():
     Main function - Execute a test code.
     """
 
-    # Some bugs on some calculation method like "Makkah" ...
-    praytimes = PrayTimes('Makkah', format_time="24h")
+    # Example locations
+    locations = {
+        "Paris, France": ((48.8566, 2.3522, 35), 1),
+        "Mecca, Saudi Arabia": ((21.3891, 39.8579, 277), 3),
+    }
 
     today = datetime.date.today()
 
-    paris_lat, paris_long = 48.866, 2.33
-    # Change this parameter according to the city
-    paris_utc = 1
+    pt = PrayTimes(method='ISNA')
 
-    print_begin(praytimes.calc_method)
+    for location, (coords, tz) in locations.items():
+        times = pt.get_times(today, coords, tz)
+        print(pt)
 
-    times = praytimes.get_times(date=today, coords=(paris_lat, paris_long), utc_offset=paris_utc)
-    for i in ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']:
-        print("{0:<10} | {1:^12}".format(i, times[i.lower()]))
+    pt.adjust({"asr": "Hanafi"})
+    pt.set_method("UOIF")
 
-    praytimes.adjust({"asr": "Hanafi"})
-    praytimes.set_method("ISNA")
+    pt.tune({'fajr': +4, 'dhuhr': -3, 'asr': -5, 'maghrib': -10, 'isha': +10,
+             'midnight': 5, 'sunrise': -2, 'sunset': +9, 'imsak': +5})
 
-    print_begin(praytimes.calc_method)
-
-    times = praytimes.get_times(date=today, coords=(paris_lat, paris_long), utc_offset=paris_utc)
-    for i in ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']:
-        print("{0:<10} | {1:^12}".format(i, times[i.lower()]))
-
-    print_begin(praytimes.calc_method)
-
-    praytimes.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10, 'isha': +10,
-                    'midnight': 5, 'sunrise': -2, 'sunset': +9, 'imsak': +15})
-
-    times = praytimes.get_times(date=today, coords=(paris_lat, paris_long), utc_offset=paris_utc)
-    for i in ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']:
-        print("{0:<10} | {1:^12}".format(i, times[i.lower()]))
+    for location, (coords, tz) in locations.items():
+        times = pt.get_times(today, coords, tz)
+        print(pt)
 
 
 # Sample code to run in standalone mode only
