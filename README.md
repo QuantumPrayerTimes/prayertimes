@@ -1,26 +1,9 @@
 PrayerTimes
 ===========
 
-.. image:: https://travis-ci.org/QuantumPrayerTimes/prayertimes.svg?branch=master
-    :alt: Build
-    
-.. image:: https://coveralls.io/repos/github/QuantumPrayerTimes/prayertimes/badge.svg?branch=master
-    :target: https://coveralls.io/github/QuantumPrayerTimes/prayertimes?branch=master
-
-.. image:: https://landscape.io/github/QuantumPrayerTimes/prayertimes/master/landscape.svg?style=flat
-    :target: https://landscape.io/github/QuantumPrayerTimes/prayertimes/master
-    :alt: Code Health
-    
-.. image:: https://codecov.io/gh/QuantumPrayerTimes/prayertimes/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/QuantumPrayerTimes/prayertimes
-
-.. image:: https://codeclimate.com/github/QuantumPrayerTimes/prayertimes/badges/coverage.svg
-   :target: https://codeclimate.com/github/QuantumPrayerTimes/prayertimes/coverage
-   :alt: Test Coverage
-
 Pray Times, an Islamic project aimed at providing an open-source library for calculating Muslim prayers times.
 The first version of Pray Times was released in early 2007. The code is currently used in a wide range of Islamic websites and applications. (http://praytimes.org/)
-  
+
 User's Manual:
 http://praytimes.org/manual
 
@@ -28,7 +11,7 @@ Calculation Formulas:
 http://praytimes.org/calculation
 
 Compatibility:
-Compatible with Python 2.x and 3.x
+Compatible with Python 3.x
 
 **This is an improved version PEP8 compliant, bugs fixed and ready to use.**
 
@@ -40,14 +23,15 @@ Features:
 * Local calculation of prayer times (no connection to Internet is needed)
 * Multiple time formats
 * Adjusting prayer times
- 
+* No dependencies
+
 Prerequisites
 =============
 
 You will need the following software properly installed on your computer.
 
 * `Git <http://git-scm.com/>`__
-* `Python 2.x or 3.x <https://www.python.org/>`__
+* `Python 3.x <https://www.python.org/>`__
 
 Installation
 ============
@@ -64,57 +48,64 @@ Usage
 =====
 
 Available calculation methods :
-  
+
 ::
 
-    +=========+===============================================+
-    | Method  | Description                                   |
-    +=========+===============================================+
-    | MWL     | Muslim World League                           |
-    +---------+-----------------------------------------------+
-    | ISNA    | Islamic Society of North America              |
-    +---------+-----------------------------------------------+
-    | Egypt   | Egyptian General Authority of Survey          |
-    +---------+-----------------------------------------------+
-    | Makkah  | Umm al-Qura University                        |
-    +---------+-----------------------------------------------+
-    | Karachi | University of Islamic Sciences, Karachi       |
-    +---------+-----------------------------------------------+
-    | Tehran  | Institute of Geophysics, University of Tehran |
-    +---------+-----------------------------------------------+
-    | Jafari  | Shia Ithna Ashari (Jafari)                    |
-    +---------+-----------------------------------------------+
+    +=============+===============================================+
+    | Method      | Description                                   |
+    +=============+===============================================+
+    | MWL         | Muslim World League                           |
+    +-------------+-----------------------------------------------+
+    | ISNA        | Islamic Society of North America              |
+    +-------------+-----------------------------------------------+
+    | Egypt       | Egyptian General Authority of Survey          |
+    +-------------+-----------------------------------------------+
+    | Makkah      | Umm al-Qura University                        |
+    +-------------+-----------------------------------------------+
+    | Karachi     | University of Islamic Sciences, Karachi       |
+    +-------------+-----------------------------------------------+
+    | Tehran      | Institute of Geophysics, University of Tehran |
+    +-------------+-----------------------------------------------+
+    | Jafari      | Shia Ithna Ashari (Jafari)                    |
+    +-------------+-----------------------------------------------+
+    | UOIF        | Union of Islamic Organizations of France      |
+    +-------------+-----------------------------------------------+
+    | Singapore   | Majlis Ugama Islam Singapura                  |
+    +-------------+-----------------------------------------------+
+    | Turkey      | Diyanet İşleri Başkanlığı                     |
+    +-------------+-----------------------------------------------+
 
 Using today date :
-  
+
 .. code:: python
 
     from prayertimes import PrayTimes
     import datetime
-    
-    today = datetime.date.today()
-    
+
+    today = datetime.datetime.today()
+
     # Using ISNA calculation method
-    PT = PrayTimes('ISNA')
-    
+    pt = PrayTimes(method='ISNA')
+
     # Date today
     # City Lat and Long : 43, -80
-    # City UTC offset : -5 (you have to take into account DST)
-    times = PT.get_times(today, (43, -80), -5)
+    # City UTC offset : -5 (you have to take into account DST) or specify Timezone
+    times = pt.get_times(today, (43, -80), -5)
+    times = pt.get_times(today, (43, -80), "America/New York")
 
 Using a special date :
 
 .. code:: python
 
     from prayertimes import PrayTimes
-    
+
     # Using ISNA calculation method
-    PT = PrayTimes('ISNA')
-    
+    pt = PrayTimes(method='ISNA')
+
     # Date 02/25/2011
     # City Lat and Long : 43, -80
     # City UTC offset : -5 (you have to take into account DST)
-    times = PT.get_times((2011, 2, 25), (43, -80), -5)
+    times = pt.get_times((2011, 2, 25), (43, -80), -5)
 
 Available time format :
 
@@ -137,14 +128,14 @@ Modify time format :
 .. code:: python
 
     from prayertimes import PrayTimes
-    
+
     # Using ISNA calculation method
-    PT = PrayTimes('ISNA')
-    
+    pt = PrayTimes('ISNA')
+
     # Change time format
-    PT.time_format = '12h'
-    
-    times = PT.get_times((2011, 2, 25), (43, -80), -5)
+    pt.time_format = '12h'
+
+    times = pt.get_times((2011, 2, 25), (43, -80), -5)
 
 Available settings :
 
@@ -158,7 +149,7 @@ Available settings :
     +----------+--------------------------------------------------------+
     | Hanafi   | Hanafi school of tought (shadow factor = 2)            |
     +----------+--------------------------------------------------------+
-    
+
     Midnight methods
     +==========+======================================+
     | Method   | Description                          |
@@ -167,7 +158,7 @@ Available settings :
     +----------+--------------------------------------+
     | Hanafi   | The mean time from Maghrib to Fajr   |
     +----------+--------------------------------------+
-    
+
     Higher latitudes methods
     +=============+======================================+
     | Method      | Description (More Info)              |
@@ -187,30 +178,30 @@ Modify settings :
 .. code:: python
 
     from prayertimes import PrayTimes
-    
+
     # Using ISNA calculation method
-    PT = PrayTimes('ISNA')
-    
+    pt = PrayTimes(method='ISNA')
+
     # Change asr settings
-    PT.adjust({'asr': 'Hanafi'})
-    
-    times = PT.get_times((2011, 2, 25), (43, -80), -5)
+    pt.adjust({'asr': 'Hanafi'})
+
+    times = pt.get_times((2011, 2, 25), (43, -80), -5)
 
 Tune prayer times :
 
 .. code:: python
 
     from prayertimes import PrayTimes
-    
+
     # Using ISNA calculation method
-    PT = PrayTimes('ISNA')
-    
+    pt = PrayTimes(method='ISNA')
+
     # Tune the times
-    PT.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10, 
-             'isha': +10, 'midnight': 5, 'sunrise': -2, 'sunset': +9, 
+    pt.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10,
+             'isha': +10, 'midnight': 5, 'sunrise': -2, 'sunset': +9,
              'imsak': +15})
-    
-    times = PT.get_times((2011, 2, 25), (43, -80), -5)
+
+    times = pt.get_times((2011, 2, 25), (43, -80), -5)
 
 Resources
 =========

@@ -39,7 +39,7 @@ Compatible with Python 2.x and 3.x
 
 ------------------------ User Interface -------------------------
 
-* get_times (date, coordinates, timeZone [, dst [, timeFormat]])
+* get_times (date, coordinates, [, timezone, utc_offset, [, timeFormat]])
 
 * set_method (method)      -- Set calculation method
 * adjust (parameters)      -- Adjust calculation parameters
@@ -63,7 +63,7 @@ Compatible with Python 2.x and 3.x
 | Jafari    | Shia Ithna Ashari (Ja`fari)                   |
 | UOIF      | Union of Islamic Organizations of France      |
 | Singapore | Majlis Ugama Islam Singapura                  |
-| Turkey    | Diyanet İşleri Başkanlığı, Turkey             |
+| Turkey    | Diyanet İşleri Başkanlığı                     |
 
 | Parameter | Values        | Description                   | Sample Value |
 |-----------|---------------|-------------------------------|--------------|
@@ -105,30 +105,32 @@ Compatible with Python 2.x and 3.x
 ------------------------- Sample Usage --------------------------
 
 * Get prayer times from a date
->> PT = PrayTimes('ISNA')
->> times = PT.get_times((2011, 2, 9), (43, -80), -5)
+>> pt = PrayTimes(method='ISNA')
+>> times = pt.get_times((2011, 2, 9), (43, -80), -5)
 >> times['sunrise']
 07:26
 
 * Set calculation method
->> PT.set_method('ISNA')
+>> pt.set_method('MWL')
 
 * Adjust fajr and Isha using different degrees
->> PT.adjust({'fajr': 12, 'isha': 12})
+>> pt.adjust({'fajr': 12, 'isha': 12})
 
 * Tune prayer times setting minutes adjustments
->> PT.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10, 'isha': +10,
+>> pt.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10, 'isha': +10,
             'midnight': 5, 'sunrise': -2, 'sunset': +9, 'imsak': +15})
 
-* print PT.offset
-* print PT.calc_method
-* print PT.settings
+* print pt.offset
+* print pt.method
+* print pt.settings
 
 """
 
 import math
 import re
 import datetime
+
+from zoneinfo import ZoneInfo
 
 
 class PrayTimes(object):
@@ -202,45 +204,38 @@ class PrayTimes(object):
         "highLats": 'NightMiddle'
     }
 
-    offset = {}
+    def __init__(self, **kwargs):
+        """
+        Initialize the PrayTimes calculator.
 
-    def __init__(self, method="MWL", format_time="24h", **kwargs):
+        Args:
+            method: Calculation method (e.g., 'MWL', 'ISNA')
+            kwargs: Additional options (coords, timezone, date)
+        """
 
-        # Initialize coordinates
         coords = kwargs.get("coords", (0, 0, 0))
         self.lat = coords[0]
         self.lng = coords[1]
         self.elv = coords[2]
 
-        # Initialize timezone
-        timezone = kwargs.get("timezone", 0)
-        self.timezone = timezone
-
-        # Initialize date
-        date = kwargs.get("date", datetime.date.today())
+        date = kwargs.get("date", datetime.datetime.today())
         self.julian_date = self.julian(date.year, date.month, date.day) - self.lng / (15 * 24.0)
 
-        # Add default parameters (maghrib and midnight) to methods if not defined.
-        for _, config_ in self.methods.items():
-            for name_, value_ in self.method_defaults.items():
-                if name_ not in config_['params'] or config_['params'][name_] is None:
-                    config_['params'][name_] = value_
+        # default parameters (maghrib and midnight) if undefined
+        for config in self.methods.values():
+            for name, value in self.method_defaults.items():
+                if name not in config['params']:
+                    config['params'][name] = value
 
-        # Initialize settings.
-        self.calc_method = method if method in self.methods else 'MWL'
-        params = self.methods[self.calc_method]['params']
+        self.method = kwargs.get("method", "MWL")
+        if self.method not in self.methods:
+            raise ValueError(f"Invalid value for method: {self.method}. Allowed values are: {self.methods}")
 
-        # Fill the final settings with params
-        for name, value in params.items():
-            self.settings[name] = value
+        self.settings = {**self.settings, **self.methods[self.method]['params']}
 
-        # Initialize time offsets.
-        for name in self.time_names:
-            self.offset[name] = 0
+        self.offset = {name: 0 for name in self.time_names}
 
-        # Initialize time format (24h, 12h ...)
-        if format_time is not None:
-            self.time_format = format_time
+        self.time_format = kwargs.get("time_format", "24h")
 
         # Initialize last calculated times storage
         self._last_calculated_times = None
@@ -261,7 +256,7 @@ class PrayTimes(object):
         """
         if method in self.methods:
             self.adjust(self.methods[method]['params'])
-            self.calc_method = method
+            self.method = method
 
     def adjust(self, params):
         """
@@ -279,7 +274,7 @@ class PrayTimes(object):
         """
         self.offset.update(time_offsets)
 
-    def get_times(self, date, coords, utc_offset):
+    def get_times(self, date, coords, **kwargs):
         """
         Return prayer times for a given date.
         :param utc_offset:
@@ -291,9 +286,16 @@ class PrayTimes(object):
         self.lng = coords[1]
         self.elv = coords[2] if len(coords) > 2 else 0
 
-        # self.timezone = timezone + (1 if dst else 0)
-        self.timezone = utc_offset
         self.julian_date = self.julian(date.year, date.month, date.day) - self.lng / (15 * 24.0)
+
+        if 'utc_offset' in kwargs:
+            self.utc_offset = kwargs.get("utc_offset")
+        elif 'timezone' in kwargs:
+            timezone = kwargs.get("timezone")
+            date = date.astimezone(ZoneInfo(timezone))
+            self.utc_offset = date.utcoffset().total_seconds() / 3600
+        else:
+            raise TypeError("UTC offset or Timezone must be specified")
 
         # Calculate and store times
         self._last_calculated_times = self.compute_times()
@@ -372,14 +374,14 @@ class PrayTimes(object):
         d = jd - 2451545.0
         g = self.fixangle(357.529 + 0.98560028 * d)
         q = self.fixangle(280.459 + 0.98564736 * d)
-        l = self.fixangle(q + 1.915 * self.sin(g) + 0.020 * self.sin(2 * g))
+        ll = self.fixangle(q + 1.915 * self.sin(g) + 0.020 * self.sin(2 * g))
 
         # R = 1.00014 - 0.01671 * self.cos(g) - 0.00014 * self.cos(2 * g)
         e = 23.439 - 0.00000036 * d
 
-        ra = self.arctan2(self.cos(e) * self.sin(l), self.cos(l)) / 15.0
+        ra = self.arctan2(self.cos(e) * self.sin(ll), self.cos(ll)) / 15.0
         eqt = q / 15.0 - self.fixhour(ra)
-        decl = self.arcsin(self.sin(e) * self.sin(l))
+        decl = self.arcsin(self.sin(e) * self.sin(ll))
 
         return decl, eqt
 
@@ -451,7 +453,7 @@ class PrayTimes(object):
         :return:
         """
         params = self.settings
-        tz_adjust = self.timezone - self.lng / 15.0
+        tz_adjust = self.utc_offset - self.lng / 15.0
 
         for t in times.keys():
             times[t] += tz_adjust
@@ -653,7 +655,7 @@ class PrayTimes(object):
         if self._last_calculated_times is None:
             return "Prayer times have not been calculated yet. Call get_times() first."
 
-        method_name = self.methods[self.calc_method]['name']
+        method_name = self.methods[self.method]['name']
         location = f"Lat: {self.lat:.4f}, Long: {self.lng:.4f}"
 
         # Build the output string
@@ -693,26 +695,32 @@ def main():
 
     # Example locations
     locations = {
-        "Paris, France": ((48.8566, 2.3522, 35), 1),
-        "Mecca, Saudi Arabia": ((21.3891, 39.8579, 277), 3),
+        "Paris, France": ((48.8566, 2.3522, 35), 2, "Europe/Paris"),
+        "Mecca, Saudi Arabia": ((21.3891, 39.8579, 277), 3, "Asia/Riyadh"),
     }
 
-    today = datetime.date.today()
+    today = datetime.datetime.today()
 
     pt = PrayTimes(method='ISNA')
 
-    for location, (coords, tz) in locations.items():
-        times = pt.get_times(today, coords, tz)
+    # provide timezone (more reliable: UTC offset is automatically calculated)
+    for location, (coords, _, timezone) in locations.items():
+        pt.get_times(today, coords, timezone=timezone)
         print(pt)
 
+    # or provide UTC offset manually
+    for location, (coords, utc_offset, _) in locations.items():
+        pt.get_times(today, coords, utc_offset=utc_offset)
+        print(pt)
+
+    # and adjust settings
     pt.adjust({"asr": "Hanafi"})
     pt.set_method("UOIF")
-
     pt.tune({'fajr': +4, 'dhuhr': -3, 'asr': -5, 'maghrib': -10, 'isha': +10,
              'midnight': 5, 'sunrise': -2, 'sunset': +9, 'imsak': +5})
 
-    for location, (coords, tz) in locations.items():
-        times = pt.get_times(today, coords, tz)
+    for location, (coords, _, timezone) in locations.items():
+        pt.get_times(today, coords, timezone=timezone)
         print(pt)
 
 

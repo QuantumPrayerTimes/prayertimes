@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prayertimes"
+version = "0.0.2"
+description = "Prayer Times Calculator for Islamic prayers"
+authors = [
+    { name="Sid-Ali TEIR", email="teir.sidali@gmail.com" }
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/QuantumPrayerTimes/prayertimes"
