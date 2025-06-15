@@ -1,218 +1,202 @@
-PrayerTimes
-===========
+# PrayerTimes
 
-Pray Times, an Islamic project aimed at providing an open-source library for calculating Muslim prayers times.
-The first version of Pray Times was released in early 2007. The code is currently used in a wide range of Islamic websites and applications. (http://praytimes.org/)
+Pray Times is an Islamic project aimed at providing an open-source library for calculating Muslim prayer times.
+The first version of Pray Times was released in early 2007. The code is currently used in a wide range of Islamic websites and applications.
+🔗 http://praytimes.org/
 
-User's Manual:
-http://praytimes.org/manual
+- **User's Manual:** http://praytimes.org/manual
+- **Calculation Formulas:** http://praytimes.org/calculation
 
-Calculation Formulas:
-http://praytimes.org/calculation
+**Compatible with Python 3.x**
+**Improved version: PEP8 compliant, bugs fixed, and ready to use**
 
-Compatibility:
-Compatible with Python 3.x
+---
 
-**This is an improved version PEP8 compliant, bugs fixed and ready to use.**
+## Features
 
-Features:
-=========
+- Various methods of time calculation
+- Global location support
+- Local prayer time calculation (no internet required)
+- Multiple time formats
+- Time adjustments
+- No external dependencies
 
-* Various methods of time calculation
-* Supporting all locations around the world
-* Local calculation of prayer times (no connection to Internet is needed)
-* Multiple time formats
-* Adjusting prayer times
-* No dependencies
+---
 
-Prerequisites
-=============
+## Prerequisites
 
-You will need the following software properly installed on your computer.
+Make sure you have the following installed:
 
-* `Git <http://git-scm.com/>`__
-* `Python 3.x <https://www.python.org/>`__
+- [Git](http://git-scm.com/)
+- [Python 3.x](https://www.python.org/)
 
-Installation
-============
+---
 
-Clone the repo and run :
+## Installation
 
-.. code:: python
+```bash
+git clone https://github.com/QuantumPrayerTimes/prayertimes.git
+cd prayertimes
+python setup.py install
+```
 
-    git clone https://github.com/QuantumPrayerTimes/prayertimes.git
-    cd prayertimes
-    python setup.py install
+---
 
-Usage
-=====
+## Usage
 
-Available calculation methods :
+### Available Calculation Methods
 
-::
+| Method    | Description                                   |
+|-----------|-----------------------------------------------|
+| MWL       | Muslim World League                           |
+| ISNA      | Islamic Society of North America              |
+| Egypt     | Egyptian General Authority of Survey          |
+| Makkah    | Umm al-Qura University                        |
+| Karachi   | University of Islamic Sciences, Karachi       |
+| Tehran    | Institute of Geophysics, University of Tehran |
+| Jafari    | Shia Ithna Ashari (Jafari)                    |
+| UOIF      | Union of Islamic Organizations of France      |
+| Singapore | Majlis Ugama Islam Singapura                  |
+| Turkey    | Diyanet İşleri Başkanlığı                     |
 
-    +=============+===============================================+
-    | Method      | Description                                   |
-    +=============+===============================================+
-    | MWL         | Muslim World League                           |
-    +-------------+-----------------------------------------------+
-    | ISNA        | Islamic Society of North America              |
-    +-------------+-----------------------------------------------+
-    | Egypt       | Egyptian General Authority of Survey          |
-    +-------------+-----------------------------------------------+
-    | Makkah      | Umm al-Qura University                        |
-    +-------------+-----------------------------------------------+
-    | Karachi     | University of Islamic Sciences, Karachi       |
-    +-------------+-----------------------------------------------+
-    | Tehran      | Institute of Geophysics, University of Tehran |
-    +-------------+-----------------------------------------------+
-    | Jafari      | Shia Ithna Ashari (Jafari)                    |
-    +-------------+-----------------------------------------------+
-    | UOIF        | Union of Islamic Organizations of France      |
-    +-------------+-----------------------------------------------+
-    | Singapore   | Majlis Ugama Islam Singapura                  |
-    +-------------+-----------------------------------------------+
-    | Turkey      | Diyanet İşleri Başkanlığı                     |
-    +-------------+-----------------------------------------------+
+---
 
-Using today date :
+### Using Today's Date
 
-.. code:: python
+```python
+from prayertimes import PrayTimes
+import datetime
 
-    from prayertimes import PrayTimes
-    import datetime
+today = datetime.datetime.today()
 
-    today = datetime.datetime.today()
+# Using ISNA method
+pt = PrayTimes(method='ISNA')
 
-    # Using ISNA calculation method
-    pt = PrayTimes(method='ISNA')
+# Get times using UTC offset
+times = pt.get_times(today, (43, -80), -5)
 
-    # Date today
-    # City Lat and Long : 43, -80
-    # City UTC offset : -5 (you have to take into account DST) or specify Timezone
-    times = pt.get_times(today, (43, -80), -5)
-    times = pt.get_times(today, (43, -80), "America/New York")
+# Or using a timezone string
+times = pt.get_times(today, (43, -80), "America/New_York")
+```
 
-Using a special date :
+---
 
-.. code:: python
+### Using a Specific Date
 
-    from prayertimes import PrayTimes
+```python
+from prayertimes import PrayTimes
 
-    # Using ISNA calculation method
-    pt = PrayTimes(method='ISNA')
+pt = PrayTimes(method='ISNA')
 
-    # Date 02/25/2011
-    # City Lat and Long : 43, -80
-    # City UTC offset : -5 (you have to take into account DST)
-    times = pt.get_times((2011, 2, 25), (43, -80), -5)
+# February 25, 2011 at location (43, -80)
+times = pt.get_times((2011, 2, 25), (43, -80), -5)
+```
 
-Available time format :
+---
 
-::
+### Available Time Formats
 
-    +=========+==============================+=========+
-    | Format | Description                   | Example |
-    +=========+==============================+=========+
-    | 24h    | 24-hour time format           | 16:45   |
-    +--------+-------------------------------+---------+
-    | 12h    | 12-hour time format           | 4:45 pm |
-    +--------+-------------------------------+---------+
-    | 12hNS  | 12-hour format with no suffix | 4:45    |
-    +--------+-------------------------------+---------+
-    | Float  | Floating point number         | 16.75   |
-    +--------+-------------------------------+---------+
+| Format | Description                     | Example |
+|--------|---------------------------------|---------|
+| 24h    | 24-hour format                  | 16:45   |
+| 12h    | 12-hour format with suffix      | 4:45 pm |
+| 12hNS  | 12-hour format no suffix        | 4:45    |
+| Float  | Decimal hours (floating point)  | 16.75   |
 
-Modify time format :
+---
 
-.. code:: python
+### Changing Time Format
 
-    from prayertimes import PrayTimes
+```python
+from prayertimes import PrayTimes
 
-    # Using ISNA calculation method
-    pt = PrayTimes('ISNA')
+pt = PrayTimes('ISNA')
 
-    # Change time format
-    pt.time_format = '12h'
+# Set 12-hour format
+pt.time_format = '12h'
 
-    times = pt.get_times((2011, 2, 25), (43, -80), -5)
+times = pt.get_times((2011, 2, 25), (43, -80), -5)
+```
 
-Available settings :
+---
 
-::
+### Asr Methods
 
-    Asr methods
-    +==========+========================================================+
-    | Method   | Description (More Info)                                |
-    +==========+========================================================+
-    | Standard | Shafii, Maliki, Jafari and Hanbali (shadow factor = 1) |
-    +----------+--------------------------------------------------------+
-    | Hanafi   | Hanafi school of tought (shadow factor = 2)            |
-    +----------+--------------------------------------------------------+
+| Method   | Description                                                |
+|----------|------------------------------------------------------------|
+| Standard | Shafii, Maliki, Jafari, Hanbali (shadow factor = 1)        |
+| Hanafi   | Hanafi school of thought (shadow factor = 2)               |
 
-    Midnight methods
-    +==========+======================================+
-    | Method   | Description                          |
-    +==========+======================================+
-    | Standard | The mean time from Sunset to Sunrise |
-    +----------+--------------------------------------+
-    | Hanafi   | The mean time from Maghrib to Fajr   |
-    +----------+--------------------------------------+
+---
 
-    Higher latitudes methods
-    +=============+======================================+
-    | Method      | Description (More Info)              |
-    +=============+======================================+
-    | None        | No adjustments                       |
-    +-------------+--------------------------------------+
-    | NightMiddle | The middle of the night method       |
-    +-------------+--------------------------------------+
-    | OneSeventh  | The 1/7th of the night method        |
-    +-------------+--------------------------------------+
-    | AngleBased  | The angle-based method (recommended) |
-    +-------------+--------------------------------------+
+### Midnight Methods
 
+| Method   | Description                          |
+|----------|--------------------------------------|
+| Standard | Mean time from Sunset to Sunrise     |
+| Hanafi   | Mean time from Maghrib to Fajr       |
 
-Modify settings :
+---
 
-.. code:: python
+### Higher Latitude Methods
 
-    from prayertimes import PrayTimes
+| Method      | Description                        |
+|-------------|------------------------------------|
+| None        | No adjustments                     |
+| NightMiddle | Middle of the night                |
+| OneSeventh  | 1/7th of the night                 |
+| AngleBased  | Angle-based (recommended)          |
 
-    # Using ISNA calculation method
-    pt = PrayTimes(method='ISNA')
+---
 
-    # Change asr settings
-    pt.adjust({'asr': 'Hanafi'})
+### Modifying Settings
 
-    times = pt.get_times((2011, 2, 25), (43, -80), -5)
+```python
+from prayertimes import PrayTimes
 
-Tune prayer times :
+pt = PrayTimes(method='ISNA')
 
-.. code:: python
+# Use Hanafi method for Asr
+pt.adjust({'asr': 'Hanafi'})
 
-    from prayertimes import PrayTimes
+times = pt.get_times((2011, 2, 25), (43, -80), -5)
+```
 
-    # Using ISNA calculation method
-    pt = PrayTimes(method='ISNA')
+---
 
-    # Tune the times
-    pt.tune({'fajr': +10, 'dhuhr': -10, 'asr': -10, 'maghrib': -10,
-             'isha': +10, 'midnight': 5, 'sunrise': -2, 'sunset': +9,
-             'imsak': +15})
+### Tuning Prayer Times
 
-    times = pt.get_times((2011, 2, 25), (43, -80), -5)
+```python
+from prayertimes import PrayTimes
 
-Resources
-=========
-* Homepage: https://github.com/QuantumPrayerTimes/prayertimes
-* Source:
+pt = PrayTimes(method='ISNA')
 
-    - Browse at https://github.com/QuantumPrayerTimes/prayertimes
+# Add/subtract minutes to specific times
+pt.tune({
+    'fajr': +10,
+    'dhuhr': -10,
+    'asr': -10,
+    'maghrib': -10,
+    'isha': +10,
+    'midnight': +5,
+    'sunrise': -2,
+    'sunset': +9,
+    'imsak': +15
+})
 
+times = pt.get_times((2011, 2, 25), (43, -80), -5)
+```
 
-Issues
-======
+---
 
-If you have any issues or improvements, do not hesitate to create an
-issue or submit a pull request.
+## Resources
+
+- **Homepage:** [https://github.com/QuantumPrayerTimes/prayertimes](https://github.com/QuantumPrayerTimes/prayertimes)
+- **Source:** [Browse Repository](https://github.com/QuantumPrayerTimes/prayertimes)
+
+---
+
+## Issues
+
+Have suggestions or run into problems?
+👉 [Open an issue](https://github.com/QuantumPrayerTimes/prayertimes/issues) or submit a pull request!
